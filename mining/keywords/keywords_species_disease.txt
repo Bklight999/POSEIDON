@@ -1,0 +1,156 @@
+# Curated model-organism, species, disease, and phenotype keywords.
+# These provide an additional search dimension beyond disciplines and methods.
+# Entries bypass discipline-root filters. Broad generic terms are intentionally omitted.
+# One keyword per line; full-line and inline comments are ignored by the loader.
+zebrafish
+Arabidopsis
+C. elegans
+Caenorhabditis elegans
+Drosophila
+fruit fly
+mouse genome
+mus musculus
+rat brain
+macaque
+zebra finch
+Xenopus
+yeast genome
+Saccharomyces
+E. coli
+Escherichia coli
+Bacillus subtilis
+Mycobacterium
+Pseudomonas
+Staphylococcus
+Salmonella
+Streptococcus
+cyanobacteria
+Chlamydomonas
+maize genome
+rice genome
+wheat genome
+soybean
+tomato genome
+barley
+sorghum
+potato genome
+grapevine
+poplar
+moss
+diatom
+nematode
+honeybee
+mosquito
+Anopheles
+Aedes
+tick
+zooplankton
+coral reef
+sponge microbiome
+fungal genome
+Aspergillus
+Candida albicans
+Plasmodium
+Trypanosoma
+Leishmania
+Toxoplasma
+Schistosoma
+archaea
+bacteriophage
+SARS-CoV-2
+influenza virus
+HIV
+hepatitis virus
+dengue
+Zika virus
+Ebola
+rotavirus
+papillomavirus
+Alzheimer
+Parkinson
+Huntington
+amyotrophic lateral sclerosis
+multiple sclerosis
+epilepsy
+schizophrenia
+autism spectrum
+bipolar disorder
+major depression
+ADHD
+stroke lesion
+traumatic brain injury
+glioma
+glioblastoma
+breast cancer
+lung adenocarcinoma
+colorectal cancer
+prostate cancer
+pancreatic cancer
+melanoma
+leukemia
+lymphoma
+myeloma
+hepatocellular carcinoma
+ovarian cancer
+gastric cancer
+esophageal cancer
+thyroid cancer
+renal cell carcinoma
+sarcoma
+neuroblastoma
+retinoblastoma
+diabetic retinopathy
+type 2 diabetes
+type 1 diabetes
+obesity metabolomics
+metabolic syndrome
+nonalcoholic fatty liver
+cirrhosis
+chronic kidney disease
+polycystic kidney
+heart failure
+atrial fibrillation
+myocardial infarction
+cardiomyopathy
+atherosclerosis
+hypertension
+pulmonary fibrosis
+asthma
+COPD
+cystic fibrosis
+sepsis
+tuberculosis
+malaria
+sickle cell
+thalassemia
+hemophilia
+rheumatoid arthritis
+osteoarthritis
+osteoporosis
+lupus
+psoriasis
+inflammatory bowel disease
+Crohn disease
+ulcerative colitis
+celiac disease
+preeclampsia
+preterm birth
+macular degeneration
+glaucoma
+cataract
+hearing loss
+Duchenne muscular dystrophy
+spinal muscular atrophy
+Rett syndrome
+Down syndrome
+fragile X
+rare disease variant
+antimicrobial resistance
+antibiotic resistance
+vaccine efficacy
+wound healing
+aging biomarker
+circadian rhythm
+gut microbiome
+oral microbiome
+skin microbiome

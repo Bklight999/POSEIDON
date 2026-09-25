@@ -1,0 +1,4 @@
+# Replace these examples with your worker hosts, one per line.
+# Configure the launcher for the intended host count.
+worker-01.example.invalid
+worker-02.example.invalid

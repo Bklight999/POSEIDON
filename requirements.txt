@@ -1,0 +1,3 @@
+# Third-party dependencies for task generation.
+requests>=2.28.0      # GitHub GraphQL and LLM requests; use one Session per thread.
+paramiko>=2.11.0      # Optional SSH-based distributed launching.

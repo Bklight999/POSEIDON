@@ -1,0 +1,143 @@
+# Curated pharmacology, drug discovery, and scientific-method keywords.
+# These entries bypass discipline-root filters to preserve specialized terminology.
+# Broad terms improve recall but require additional README review.
+# Inline numbers are historical repository counts, not current estimates.
+SMILES                                  # 2570
+lead optimization                       # 2362
+target identification                   # 2041
+real-world evidence                     # 1261
+clinical prediction model               # 1064
+molecular generation                    # 1043
+drug design                             # 763
+drug discovery                          # 644
+drug-drug interaction                   # 562
+molecular property prediction           # 548
+survival analysis                       # 533
+randomized controlled trial             # 522
+reaction prediction                     # 471
+virtual screening                       # 457
+structure-based drug design             # 446
+clinical trial                          # 427
+protein-ligand binding                  # 419
+drug-target interaction                 # 328
+electronic health records               # 320
+binding affinity prediction             # 303
+molecular docking                       # 294
+molecular fingerprint                   # 271
+cheminformatics                         # 238
+toxicity prediction                     # 219
+drug response prediction                # 202
+dose-response                           # 180
+high-throughput screening               # 176
+free energy perturbation                # 169
+antibody design                         # 166
+ligand-based drug design                # 134
+retrosynthesis                          # 113
+de novo drug design                     # 91
+epitope prediction                      # 90
+traditional Chinese medicine            # 90
+drug repurposing                        # 85
+QSAR                                    # 84
+vaccine design                          # 84
+fragment-based drug design              # 82
+natural product drug discovery          # 79
+biostatistics                           # 67
+ADMET prediction                        # 57
+peptide drug design                     # 52
+antibody engineering                    # 48
+pharmacophore                           # 47
+adverse drug reaction                   # 47
+pharmacokinetics                        # 41
+pharmacogenomics                        # 37
+chemoinformatics                        # 27
+pharmacovigilance                       # 27
+QSPR                                    # 17
+pharmacodynamics                        # 12
+computational toxicology                # 11
+pharmacogenetics                        # 8
+population pharmacokinetics             # 5
+pharmacometrics                         # 4
+physiologically based pharmacokinetic   # 2
+ChEMBL                                  # 284
+PubChem                                 # 229
+DrugBank                                # 162
+BindingDB                               # 68
+behavioral tracking                     # 7291 Broad: animal behavior and general tracking
+sequence alignment                      # 3369
+trajectory inference                    # 2658 Broad: also matches robotics
+medical image segmentation              # 2454 Image-only repositories may be rejected by README review
+multiple sequence alignment             # 1774
+population structure                    # 1478
+Hi-C                                    # 1468
+protein design                          # 1460
+gene annotation                         # 1323
+variant calling                         # 1260
+protein structure prediction            # 1240
+structural variant                      # 1145
+copy number variation                   # 1055
+genome assembly                         # 948
+molecular dynamics                      # 878
+cell type annotation                    # 852
+long-read sequencing                    # 673
+food web                                # 636
+neuroimaging                            # 545
+differential expression                 # 533
+protein-protein interaction network     # 504
+EEG classification                      # 460
+single-cell RNA-seq                     # 435
+batch effect correction                 # 382
+species distribution model              # 348
+population dynamics model               # 333
+RNA structure prediction                # 327
+nanopore sequencing                     # 306
+scRNA-seq                               # 305
+splicing analysis                       # 298
+spike sorting                           # 298
+ChIP-seq                                # 295
+spatial transcriptomics                 # 285
+GWAS                                    # 244
+metabolic model                         # 230
+connectome                              # 222
+fMRI analysis                           # 213
+pathway enrichment                      # 188
+sleep staging                           # 188
+compartmental model                     # 185
+crop yield prediction                   # 176
+gene regulatory network                 # 171
+ATAC-seq                                # 165
+disease progression model               # 156
+flux balance analysis                   # 150
+epidemic model                          # 150
+microbiome analysis                     # 144
+cryo-EM                                 # 134
+pose estimation animal                  # 132
+phylogenetic inference                  # 129
+radiomics                               # 128
+metagenome assembly                     # 127
+somatic mutation                        # 109
+plant phenotyping                       # 105
+biomarker discovery                     # 93
+molecular phylogenetics                 # 86
+calcium imaging                         # 81
+electrocardiogram classification        # 78
+16S rRNA                                # 69
+codon optimization                      # 69
+systems pharmacology                    # 66
+CRISPR guide design                     # 65
+mass spectrometry proteomics            # 62
+flow cytometry                          # 58
+CRISPR screen                           # 56
+enzyme engineering                      # 55
+eQTL                                    # 53
+tumor microenvironment                  # 51
+network pharmacology                    # 51
+polygenic risk score                    # 38
+linkage disequilibrium                  # 35
+immune repertoire                       # 33
+biodiversity assessment                 # 33
+TCR sequencing                          # 31
+Mendelian randomization                 # 26
+heritability estimation                 # 18
+soil microbiome                         # 17
+antibody repertoire                     # 16
+ecological niche model                  # 10
