@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from stemgen.package_tasks import _qc_with_gpt, _QC_SENSITIVE_RE
 
-VALID_TYPES = {"original", "subworkflow", "intermediate", "completion", "repair", "missing_node_repair"}
+VALID_TYPES = {"original", "subworkflow", "completion", "repair"}
 
 def find_stem_dirs(base_dir):
     """Enumerate task directories in either supported layout."""

@@ -6,7 +6,7 @@ Repository search -> scientific file selection -> workflow grouping
   -> reference execution and evaluator generation -> QC and packaging
 ```
 
-The pipeline begins with real research source code, then turns verified workflows into reproduction, subworkflow, intermediate, completion, correction, and missing-step diagnosis tasks. Gold answers come from execution with staged inputs. Packaging checks input availability, reference reproducibility, evaluator behavior, and scientific consistency.
+The pipeline begins with real research source code, then turns verified workflows into reproduction, subworkflow, completion, and correction tasks. Gold answers come from execution with staged inputs. Packaging checks input availability, reference reproducibility, evaluator behavior, and scientific consistency.
 
 A delivered task directory contains:
 

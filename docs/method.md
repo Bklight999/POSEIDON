@@ -19,10 +19,8 @@ The pipeline converts executable research workflows into verifiable scientific-a
 |---|---|
 | `original` | Reproduce an end-to-end scientific analysis from its objective and inputs. |
 | `subworkflow` | Complete a scientifically meaningful section of a larger workflow. |
-| `intermediate` | Compute an independently meaningful intermediate quantity. |
 | `completion` | Restore an explicitly identified missing scientific step. |
 | `repair` | Diagnose and correct an injected scientific mistake. |
-| `missing_node_repair` | Diagnose an omitted essential step when the program still runs and returns plausible values. |
 
 Composite answers combine related quantities to test consistency across the analysis chain. Scientific mutations should represent meaningful failure modes such as leakage, inappropriate normalization, incorrect grouping, or missing controls; syntax and path errors are not substitutes for scientific reasoning.
 

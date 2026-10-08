@@ -86,8 +86,12 @@ Results are written under `tasks_out/demo/`: `candidates.jsonl` stores generated
 | `stemgen/` | Workflow extraction, task synthesis, execution, evaluation, and packaging |
 | `mining/` | Repository discovery and scientific source-file collection |
 | `pool_and_launch/` | Repository pools and distributed launch templates |
-| `qc/` | Additional quality checks and task-image building |
+| `qc/` | Three-round model QC, independent audit sampling, and task-image building |
 | `collect/`, `datasets/` | Collect generated tasks and assemble dataset subsets |
 | `docs/`, `tests/` | Pipeline documentation and local validation |
 
 Distributed launch and collection scripts require deployment-specific paths and host settings. The local workflow above does not require those services.
+
+### Independent audit
+
+After packaging, create the paper-aligned 600-task audit manifest with `python qc/manual_audit.py tasks_out/demo/packaged/tasks_with_id.jsonl audit.json --sample-size 600`. Reviewers should submit JSONL rows with `task_id` and `approved`; pass `--reviews reviews.jsonl` to compute the all-three-reviewers acceptance rate.

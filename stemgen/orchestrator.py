@@ -269,7 +269,7 @@ def process_seed(seed_id: str, cfg: dict, args, report: list, out_path: str | No
     print(f"  ✓ 承重决策点: {[d.name for d in spec.load_bearing_points()]}")
     _dump_intermediate(out_path, seed_id, "taskspec", _asdict_safe(spec))   # Persist intermediate structure results.
 
-    # Derive six implementation task types from the original workflow without fabricated variant data.
+    # Derive the four paper task types from the original workflow without fabricated variant data.
     
     print("\n[④ derive] 调 deepseek 派生任务蓝图 ...")
     blueprints, _ = derive.derive_tasks(spec, cfg["data_files"], data_preview=preview,

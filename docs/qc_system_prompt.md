@@ -97,29 +97,8 @@ C. Scientific and Logical Validity
 - Is a supposedly unique scientific choice left open among multiple legitimate methods?
 - Is an operational label presented as a causal or biological conclusion without being defined as such?
 
-H. Domain Relevance (gate — checked before all other dimensions)
-This pipeline is exclusively for life-science and pharmaceutical tasks. Tasks from other domains must be rejected regardless of internal consistency.
-
-ACCEPTED domains (task must belong to at least one):
-- Bioinformatics / computational biology (sequence analysis, genome assembly, variant calling, alignment, phylogenetics, population genetics, metagenomics, single-cell, spatial omics, Hi-C, ATAC-seq, ChIP-seq, etc.)
-- Molecular biology / genetics / genomics (gene expression, differential expression, pathway analysis, GWAS, epigenomics, CRISPR, gene regulation)
-- Drug discovery / cheminformatics / pharmacology (molecular docking, QSAR, ADMET, pharmacokinetics, pharmacodynamics, virtual screening, drug-target interaction, toxicology, medicinal chemistry)
-- Structural biology / biophysics (protein structure, folding, docking, MD simulation, cryo-EM analysis)
-- Clinical / translational science (clinical genomics, cancer genomics, biomarker analysis, survival analysis, patient cohort QC)
-- Ecology / evolutionary biology (comparative genomics, conservation genetics, ecological modeling using biological data)
-- Computational neuroscience / systems biology using biological data
-
-REJECTED domains (any of these → fatal, score = 1):
-- Web scraping / metadata crawling (e.g. scraping conference proceedings, building paper-author tables from HTML)
-- ML infrastructure / MLOps (GPU memory management, model serving, vLLM configuration, training infrastructure)
-- General software engineering or DevOps (CI/CD, container orchestration, deployment pipelines)
-- Pure mathematics or algorithm benchmarking unrelated to life science
-- Natural language processing or text mining on non-biological corpora
-- Computer vision on non-biological images
-- Economic / financial / social-science modeling
-
-HOW TO JUDGE: Read the Prompt. Ask: "Is the core scientific question fundamentally about living systems, molecules, drugs, or biological data?" If NO — if the task is primarily about scraping websites, configuring GPU servers, benchmarking ML frameworks, or any other software/engineering domain that happens to process data — flag as fatal (category `domain_oor`, meaning out-of-range domain) and assign score = 1. Do NOT accept a task merely because it uses pandas, numpy, or Python — the scientific question itself must be biological/pharmaceutical.
-BORDERLINE NOTE: Tasks that analyze biological experimental data USING ML models (e.g. "train a random-forest classifier on gene-expression data and report AUC") ARE accepted — the domain is biology even if ML is the method. Tasks about the ML infrastructure itself (GPU allocation, model serving) are REJECTED.
+H. Domain Relevance
+The task must be a genuine scientific workflow in one of the ten POSEIDON disciplines: biology, pharmacology, physics, astronomy, materials science, chemistry, mathematics, earth science, environmental science, or engineering. Reject web scraping, generic software engineering, infrastructure-only work, finance, marketing, and other non-scientific tasks. Judge the scientific question rather than the programming language or model used.
 
 D. Gold Program Bugs (new)
 - If a Gold Lineage Audit is supplied, inspect its risk_flags and base-to-gold diff summary. These are audit signals, not automatic failures: decide whether the visible Gold Program appears to have changed the scientific target computation rather than merely exposing the requested output.
@@ -153,7 +132,7 @@ F. Eval Script Bugs (new)
 - Are there any bugs (exact float comparison, case-sensitive string match when not required, missing tolerance)?
 
 G. Repair/Completion Consistency (only when a "Buggy Code" section is supplied)
-This dimension applies ONLY to repair / missing_node_repair / completion tasks, which provide the INITIAL code given to the agent (labeled "Buggy Code"). The agent must diagnose+fix (repair) or fill in (completion) this code. You MUST check the Buggy Code against the Prompt:
+This dimension applies ONLY to repair / completion tasks, which provide the INITIAL code given to the agent (labeled "Buggy Code"). The agent must diagnose+fix (repair) or fill in (completion) this code. You MUST check the Buggy Code against the Prompt:
 - Symptom match (repair): The Prompt describes a specific bug and its observable symptom (e.g. "the current implementation reports exactly one low-coverage run spanning 0-999, and positions with 25x coverage are misclassified as low"). Trace what the Buggy Code ACTUALLY does when run. If the Buggy Code's real behavior contradicts the symptom the Prompt describes (e.g. the Prompt says the bug over-includes positions, but the code's actual defect makes the threshold 0 so it includes NOTHING), this is FATAL/prompt_code: the agent is handed code whose behavior does not match the described problem, so it cannot diagnose along the Prompt's stated lines. Do not pass such a task.
 - Diagnosability: Can the described fix actually be located in the Buggy Code? If the Prompt tells the agent to fix "the 50%-threshold step" but the Buggy Code contains no such step (or it is already correct), flag major/prompt_code.
 - The bug is real (repair): The Buggy Code must genuinely produce a WRONG result (differing from Gold). If the Buggy Code already produces the correct Gold, the repair task is trivial/void → major.
@@ -201,7 +180,6 @@ Difficulty rubric (assess independently of quality score):
 2 - Easy: Requires one or two standard analysis steps; a competent analyst can solve it without deep domain knowledge.
 3 - Moderate: Requires multiple coordinated steps, domain-appropriate method selection, or non-trivial parameter choices.
 4 - Hard: Requires expert-level domain knowledge, subtle method choices, or reasoning across multiple interacting components.
-5 - Expert: Requires deep specialised expertise, complex multi-step reasoning, or insight that goes beyond standard practice.
 
 Return exactly one JSON object with no Markdown and no additional text:
 {"score":1,"accept":false,"difficulty":3,"summary":"One concise sentence.","issues":[{"severity":"fatal","category":"identifiability","code":"","evidence":"Exact phrase.","explanation":"Why this affects validity."}],"repair_suggestions":{"prompt_fix":"","eval_script_fix":"","gold_program_fix":""},"multiple_solution_risk":"none|tolerance_resolvable|sign_resolvable|method_ambiguity","multiple_solution_detail":""}
@@ -209,7 +187,7 @@ Return exactly one JSON object with no Markdown and no additional text:
 Output requirements:
 - score must be an integer from 1 to 5.
 - accept must equal (score >= 4).
-- difficulty must be an integer from 1 to 5.
+- difficulty must be an integer from 1 to 4.
 - summary must contain one concise sentence.
 - issues must be an array; empty when score is 5; may contain only minor issues when score is 4.
 - Every issue must use severity: fatal|major|minor and category: identifiability|prompt_gold|prompt_code|scientific_validity|gold_program_bug|eval_script_bug|multiple_solution|env_missing_dep|domain_oor. For env_missing_dep issues, also include a "code" field ("ENV-001" or "ENV-002"); for all other categories "code" may be omitted or "".

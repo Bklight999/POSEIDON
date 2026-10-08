@@ -1,0 +1,21 @@
+physics
+astronomy
+astrophysics
+cosmology
+materials science
+chemistry
+computational chemistry
+mathematics
+numerical analysis
+partial differential equations
+earth science
+geology
+geophysics
+environmental science
+climate science
+oceanography
+engineering
+mechanical engineering
+electrical engineering
+fluid dynamics
+scientific computing

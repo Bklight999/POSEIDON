@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from stemgen.package_tasks import _qc_with_gpt
 
 BASE = os.getenv("STEM_PROJECT_ROOT", os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-VALID_TYPES = {"original", "subworkflow", "intermediate", "completion", "repair", "missing_node_repair"}
+VALID_TYPES = {"original", "subworkflow", "completion", "repair"}
 
 
 def _parse_task(stem_dir):

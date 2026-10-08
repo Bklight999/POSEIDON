@@ -63,7 +63,7 @@ class GradedTask:
     """A concrete task derived from a workflow specification."""
     task_id: str
     seed_id: str
-    task_type: str                   # original/subworkflow/intermediate/completion/repair
+    task_type: str                   # original/subworkflow/completion/repair
     prompt: str                      # Scientific prompt, task input files, grading specification, and executed reference answer.
     data_files: list[str]            
     grader_spec: dict                

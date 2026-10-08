@@ -1,4 +1,4 @@
-"""Derive task blueprints from a structured workflow. Each blueprint specifies its scientific objective, load-bearing decision, target output, answer type, and method alternatives. Targets must be sensitive to the tested decision so incorrect methods cannot fall within the correct-answer tolerance. The implementation supports six task labels grouped into the paper's four task families."""
+"""Derive task blueprints from a structured workflow. Each blueprint specifies its scientific objective, load-bearing decision, target output, answer type, and method alternatives. Targets must be sensitive to the tested decision so incorrect methods cannot fall within the correct-answer tolerance. The implementation follows the paper's four task families."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field, asdict
@@ -16,7 +16,7 @@ class TaskBlueprint:
     """Task blueprint produced by derivation and consumed by reference construction."""
     task_id: str
     seed_id: str
-    task_type: str                   # original / subworkflow / intermediate / completion / repair
+    task_type: str                   # original / subworkflow / completion / repair
     prompt: str                      # Scientific task prompt, load-bearing decision point, and target key in executed reference outputs.
     load_bearing_point: str          
     target_quantity_key: str         
@@ -25,7 +25,7 @@ class TaskBlueprint:
     wrong_methods: list[str]         
     target_estimand: dict = field(default_factory=dict)  # Precise target estimand, including population, contrast, and scale.
     workflow: list[str] = field(default_factory=list)
-    given_step: int = 0              # Intermediate workflow step for subworkflow, intermediate, or completion tasks; zero means not applicable.
+    given_step: int = 0              # Intermediate workflow step for subworkflow or completion tasks; zero means not applicable.
     mutation: dict = field(default_factory=dict)      # Repair mutation specification and completion step interface contract.
     removed_step: dict = field(default_factory=dict)  
     data_files: list[str] = field(default_factory=list)  # Input files used by this task.
@@ -93,13 +93,11 @@ Iron rules for authoring (must be followed):
    This applies to ALL file mentions, including those inside embedded code snippets.
 6. **PREFER MULTI-PART (composite) questions for difficulty**: a single scalar answer is easy to guess/luck into. Whenever the workflow naturally yields multiple related quantities, make the problem **composite** — ask for **2-3 related target quantities that must ALL be correct** (e.g. "report (a) the number of up-regulated genes, (b) the number of down-regulated genes, and (c) the log2FC of the top gene"). This forces the model to walk the whole chain, not just hit one endpoint. Aim for **at least half** of the problems you author to be composite (answer_type="composite" with 2-3 composite_parts). Use a single scalar only when the workflow genuinely produces just one meaningful quantity. Each composite part still needs its own target_quantity_key and must be sensitive to the load-bearing decision (rule 2).
 
-Six task types (task_type, please produce a balanced mix, covering as many types as possible):
+Four task types (task_type, please produce a balanced mix):
 - original: **Original full problem**. Given the data + scientific goal, have the model perform the full end-to-end analysis from scratch to compute the target quantity.
 - subworkflow: **Subworkflow problem**. Given some intermediate result (a quantity tagged with step N in intermediate_outputs below) as a known input,
   have the model continue from that intermediate result to the downstream target quantity, focusing on testing one load-bearing decision in the latter half (hiding the earlier steps).
   The problem statement must state "the <intermediate result> is provided (equivalent to the product of step N of the workflow)".
-- intermediate: **Intermediate variable problem**. Directly ask for the value of an intermediate quantity produced by some step of the workflow that has independent scientific meaning (such as "the size factor of a certain sample after normalization",
-  "the percentage of variance explained by the first principal component of the PCA"). target_quantity_key points to this intermediate quantity. **Do not choose pure code-bookkeeping variables** (temporary row counts / array shapes / loop indices).
 - completion: **Code completion problem**. **Remove one scientific computation step** from the full analysis (such as normalization / model_fitting / effect_adjustment),
   provide the incomplete program with that step removed (interfaces preserved, syntactically valid), and require the model to reimplement this step based on the upstream/downstream interfaces and scientific goal.
   removed_step must describe the scientific function and the input/output contracts of the removed step. **Do not remove** import / file paths / a single line of ordinary arithmetic / saving a file / column renaming.
@@ -107,12 +105,6 @@ Six task types (task_type, please produce a balanced mix, covering as many types
 - repair: **Error-diagnosis-and-repair problem**. Based on a mutation mechanism -- inject one controlled scientific error into the **correct workflow** (see the error catalog below),
   the error must be: a real failure mode, substantively affecting the target quantity, leaving observable evidence, having a scientifically defensible fix, and restoring the correct answer after the fix.
   **Do not** inject syntax/import errors, path errors, spelling errors, or errors that crash directly. Provide the mutation spec; the downstream reference will run clean+buggy to verify the answers separate.
-- missing_node_repair: **Hidden missing-node diagnosis problem** (an advanced subtype of repair). Take a **scientifically necessary node** (QC filtering / deduplication / normalization / batch correction /
-  confounder adjustment / group splitting, etc.) and **delete, bypass, or naively substitute** it (such as normalize->raw.copy(), GroupKFold->KFold), so that the code **still runs, the schema is unchanged, and
-  the numbers look reasonable on the surface, but the scientific result is substantively off**. **The key difference from completion: do not tell the agent where the missing part is**; the problem statement only describes observable symptoms + goal,
-  and the agent must locate it, restore the node, and recompute the answer using diagnostic evidence. **The error must not be locatable via the exception stack alone** (it must not be a crash).
-  removed_step describes the scientific function of the deleted node; mutation.category="missing_node", mutation.operation=remove|bypass|naive_substitution.
-
 Error catalog (repair problems pick one from here; in the first phase only these low-risk errors are allowed):
 - duplicate_sample_as_independent: treating repeated records of the same biological individual as independent samples
 - wrong_unit_scale: a batch used different units but was not converted
@@ -121,7 +113,7 @@ Error catalog (repair problems pick one from here; in the first phase only these
 - group_leakage: using ordinary random splitting instead of group-wise splitting
 - wrong_direction_or_scale: getting the effect direction/scale/unit backwards
 
-Available intermediate results (for subworkflow / intermediate / completion to choose from, in the format 'description (step N)'):
+Available intermediate results (for subworkflow / completion to choose from, in the format 'description (step N)'):
 {intermediate_outputs}
 
 Every problem must define target_estimand (the precise definition of the scientific target quantity): population (target population) / contrast (control or intervention) /
@@ -132,26 +124,26 @@ Output only the following JSON (wrapped in ```json```). **This time produce only
   "blueprints": [
     {{
       "task_id": "short English id",
-      "task_type": "original | subworkflow | intermediate | completion | repair | missing_node_repair",
-      "prompt": "full question text in English (include the relative data file names; subworkflow/intermediate must state the provided intermediate result and its step; completion must give the incomplete program in the statement; repair must describe the symptom but **not reveal the error location**)",
+      "task_type": "original | subworkflow | completion | repair",
+      "prompt": "full question text in English (include the relative data file names; subworkflow must state the provided intermediate result and its step; completion must give the incomplete program in the statement; repair must describe the symptom but **not reveal the error location**)",
       "load_bearing_point": "name of the locked-in load-bearing decision point (taken from load_bearing above)",
       "target_quantity_key": "the variable name of this target quantity in the reference script (snake_case, e.g. n_up_genes)",
       "target_estimand": {{"population":"", "contrast":"", "condition":"", "scale":"", "adjustment":[]}},
       "answer_type": "scalar|count|set|ranking|choice|composite",
-      "given_step": "for subworkflow/intermediate/completion problems: the step number (integer) corresponding to the step given as a known condition / being asked / being removed; otherwise fill in 0",
+      "given_step": "for subworkflow/completion problems: the step number (integer) corresponding to the step given as a known condition / being asked / being removed; otherwise fill in 0",
       "valid_methods": ["≥2 snake_case names of correct methods; the reference will compute each one"],
       "wrong_methods": ["≥1 snake_case name of a plausible-but-wrong method"],
       "workflow": ["the analysis steps the model must go through, with [decision] marking decision points"],
       "mutation": {{"category":"an id from the error catalog", "affected_step":"the affected step number or name", "violated_assumption":"the violated assumption", "observable_signal":"the observable evidence", "correction":"the correct fix"}} or {{}} (only needed for repair problems),
       "removed_step": {{"node":"name of the removed step", "scientific_function":"its scientific function", "input_contract":"input contract", "output_contract":"output contract"}} or {{}} (only needed for completion problems),
       "composite_parts": [{{"key":"sub-item name","type":"choice|scalar",...}}] or [],
-      "source_code_ref": "the exact lines or function(s) from the source code above that compute the target quantity for this problem — copy the relevant code snippet verbatim. This tells the downstream gold_program generator exactly which part of the source to use, avoiding guesswork. For repair/missing_node_repair, include both the correct code AND the mutated version."
+      "source_code_ref": "the exact lines or function(s) from the source code above that compute the target quantity for this problem — copy the relevant code snippet verbatim. This tells the downstream gold_program generator exactly which part of the source to use, avoiding guesswork. For repair, include both the correct code AND the mutated version."
     }}
   ]
 }}"""
 
 
-_VALID_TYPES = ["original", "subworkflow", "intermediate", "completion", "repair", "missing_node_repair"]
+_VALID_TYPES = ["original", "subworkflow", "completion", "repair"]
 
 
 def _parse_blueprint(bp: dict, spec, data_files, lb) -> "TaskBlueprint":
@@ -187,7 +179,7 @@ def derive_tasks(spec: TaskSpec, data_files: list[str],
                  counts_df=None, data_preview: str = "",
                  per_type: int = 2, workers: int = 12,
                  seed_code: str = "") -> tuple[list[TaskBlueprint], dict]:
-    """Generate blueprints for six implementation task types using independent concurrent requests, one per type/index. counts_df is retained for compatibility. Return the blueprint list and an empty variant-data mapping."""
+    """Generate blueprints for the four paper task types using independent requests."""
     from concurrent.futures import ThreadPoolExecutor, as_completed
     lb = [f"{d.name}(step {d.step})" if d.step else d.name for d in spec.load_bearing_points()]
     lb_names = {d.name for d in spec.load_bearing_points()}

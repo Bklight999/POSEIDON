@@ -1,4 +1,4 @@
-"""Construct gold answers by executing source-derived programs. Reproduction runs the workflow, subflow and intermediate tasks expose selected outputs, completion removes a step for the agent while retaining the complete reference, and correction injects an error while using the correct execution as gold. Preserve scientific logic, reject unresolved execution failures, and leave answer comparison to the generated evaluator."""
+"""Construct gold answers by executing source-derived programs. Reproduction runs the workflow, subflow tasks expose selected outputs, completion removes a step for the agent while retaining the complete reference, and correction injects an error while using the correct execution as gold. Preserve scientific logic, reject unresolved execution failures, and leave answer comparison to the generated evaluator."""
 from __future__ import annotations
 
 import difflib
@@ -144,9 +144,6 @@ def _type_note(bp) -> str:
     if bp.task_type == "subworkflow" and bp.given_step:
         return (f"[subworkflow] This task relays from the intermediate product of step {bp.given_step} of the workflow to the target quantity. "
                 f"Please extract the logic of that step and its downstream from the source code, add an entry point that 'loads/constructs that intermediate product', and then compute the target quantity.")
-    if bp.task_type == "intermediate" and bp.given_step:
-        return (f"[intermediate] This task asks for the intermediate quantity produced by step {bp.given_step} of the workflow. "
-                f"Please follow the source code up to that step and store that intermediate quantity into outputs.")
     return ""
 
 
@@ -433,7 +430,7 @@ def build_reference_single(spec, bp, seed_code: str, repo_dir: str, data_files: 
             print(f"  [{bp.task_id}] incomplete_code 生成失败: {e}")
 
     # Build buggy code using the mutation specification.
-    if bp.task_type in ("repair", "missing_node_repair"):
+    if bp.task_type == "repair":
         dp = _decision_point(spec, bp.load_bearing_point)
         wrong_choice = (dp.wrong_choices[0] if dp and dp.wrong_choices
                         else (bp.wrong_methods[0] if bp.wrong_methods else "wrong approach"))

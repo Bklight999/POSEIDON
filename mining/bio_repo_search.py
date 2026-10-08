@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Discover life-science and pharmaceutical repositories. Stages: build keywords, search GitHub and classify READMEs, clone and classify Python/notebook files, then merge by file path. Persist discipline labels and reject unrelated domains before synthesis. See USAGE below."""
+"""Discover scientific repositories across the ten POSEIDON disciplines. Stages: build keywords, search GitHub and classify READMEs, clone and classify Python/notebook files, then merge by file path. Persist discipline labels and reject unrelated domains before synthesis. See USAGE below."""
 import argparse
 import csv
 import json
@@ -18,7 +18,10 @@ sys.path.insert(0, BASE)
 from stemgen.safe_egress import sanitize_and_assert  # noqa: E402
 
 WS = os.path.join(BASE, "workspace")
-KW_SRC = [os.path.join(BASE, "mining", "keywords", "keywords_bio_pharma.txt")]
+KW_SRC = [
+    os.path.join(BASE, "mining", "keywords", "keywords_bio_pharma.txt"),
+    os.path.join(BASE, "mining", "keywords", "keywords_scientific_disciplines.txt"),
+]
 KW_OUT = os.path.join(WS, "keywords_bio_pharma.txt")
 # Append curated pharmaceutical terms without discipline regex filtering, which would incorrectly remove most of them. Inline counts record search hits.
 
@@ -137,33 +140,20 @@ def _llm_post(body: dict, timeout: int = 90):
 
 _lock = threading.Lock()
 
-# Positive life-science and pharmaceutical keyword filters. Use word boundaries for short roots to avoid unrelated matches such as organic chemistry or fuel cells.
-
-
+# Scientific-domain keyword filters covering the ten disciplines reported in the paper.
 KEEP_RE = re.compile(r"""
-    biolog|biochem|biophys|bioinform|biotech|biomed|bioeng|bio-?informat|
-    \bgene\b|genom|genet|transcript|proteom|metabolom|epigen|
-    protein|peptide|enzym|\brna\b|\bdna\b|nucleic|codon|ribosom|
-    \bcell\b|\bcells\b|cellular|cytolog|tissue|\borgans?\b|organism|
-    physiolog|anatom|histolog|
-    immun|virus|viral|virolog|microbio|bacteri|fungi|parasit|
-    medic|clinic|patholog|diagnos|therap|epidemiolog|public\s+health|
-    pharma|\bdrug|toxicol|pharmacolog|
-    neuro|\bbrain\b|
-    ecolog|evolution|phylogen|taxonom|biodivers|zoolog|botan|\bplant\b|agricult|
-    cancer|oncolog|tumor|
-    \bomics\b|molecular\s+biolog|structural\s+biolog|systems\s+biolog|synthetic\s+biolog
+    biolog|biochem|biophys|bioinform|biotech|bioeng|gene|genom|genet|transcript|proteom|metabolom|epigen|
+    protein|peptide|enzym|rna|dna|nucleic|cell|tissue|organism|physiolog|anatom|immun|virus|microbio|
+    medic|clinic|patholog|diagnos|therap|epidemiolog|pharma|drug|toxicol|neuro|brain|ecolog|evolution|
+    phylogen|taxonom|biodivers|zoolog|botan|plant|agricult|cancer|oncolog|tumor|molecular|structural|
+    climate|environment|earth|geolog|geophys|seismic|ocean|hydrolog|astron|cosmolog|astrophys|
+    physics|quantum|plasma|nuclear|particle|chem|chemical|catalys|reaction|materials|material|metallurg|
+    ceramic|polymer|semiconductor|photonic|mathemat|numerical|pde|ode|statistics|engineering|robotics|
+    mechanical|aerospace|electrical|signal|fluid|computational|simulation|modeling|scientific
 """, re.I | re.X)
-# Explicit exclusions override positive matches.
 DROP_RE = re.compile(r"""
-    acoustic|sonar|seismic|geophys|astron|cosmolog|astrophys|
-    plasma|nuclear\s+(physics|reactor)|particle\s+physics|quantum\s+(field|chromo)|
-    metallurg|ceramic|polymer\s+physics|semiconductor|photovolt|
-    fuel\s+cell|solar\s+cell|galvanic\s+cell|unit\s+cell|
-    inorganic|organoelement|organometallic|
-    financ|econom|market|
-    civil\s+engineer|structural\s+engineer|mechanical\s+engineer|aerospace|
-    linguistic|speech|music
+    financ|econom|market|linguistic|speech|music|social-media|marketing|generic web|
+    ci/cd|devops|model serving|gpu infrastructure
 """, re.I | re.X)
 
 
@@ -421,26 +411,12 @@ def gh_search(q, after=None, tries=5):
     return None
 
 
-README_SYSTEM = """You decide whether a GitHub repository is a **life-science or pharmaceutical**
-paper-companion code repository, for building a scientific coding benchmark.
+README_SYSTEM = """You decide whether a GitHub repository is a scientific research code repository for a paper or preprint.
 
-Answer YES only if BOTH hold:
-  1. It is research code accompanying a paper/preprint (or a research tool), AND
-  2. Its primary subject is life science / medicine / pharmacology:
-     biology, genomics/omics, bioinformatics, cell/molecular biology, neuroscience,
-     immunology, microbiology, virology, ecology/evolution, agriculture-biology,
-     medicine/clinical/epidemiology, pharmacology/drug discovery/toxicology.
-
-Answer NO for anything else, including: general NLP/LLM/vision/speech/recommenders,
-generic ML infrastructure, physics/astronomy/acoustics/materials, chemistry not aimed at
-drugs, finance/economics/social science, civil/mechanical engineering, graphics, robotics,
-software tooling. Judge SUBJECT MATTER, not methods.
-
-Also answer NO if the repo mainly processes images/video (microscopy, radiology,
-satellite) — we only want text/tabular/numeric data.
+Answer YES only if it contains an executable scientific workflow, data, or a research tool in one of these disciplines: biology, pharmacology, physics, astronomy, materials, chemistry, mathematics, earth science, environmental science, or engineering. Reject generic software, web applications, finance, marketing, and infrastructure-only repositories. Judge subject matter rather than programming language or model choice.
 
 Output exactly one JSON object, no markdown:
-{"verdict":"YES"|"NO","discipline":"<specific subfield, e.g. 'genomics'>","reason":"<=15 words"}"""
+{"verdict":"YES"|"NO","discipline":"<one of the ten disciplines>","reason":"<=15 words"}"""
 
 
 def judge_readme(name, desc, readme):
@@ -448,8 +424,8 @@ def judge_readme(name, desc, readme):
         user = sanitize_and_assert(
             f"Repository: {name}\nDescription: {desc or '(none)'}\n\n"
             f"README (truncated):\n{(readme or '(no README)')[:8000]}",
-            tag="bio_search:user")
-        system = sanitize_and_assert(README_SYSTEM, tag="bio_search:system")
+            tag="scientific_search:user")
+        system = sanitize_and_assert(README_SYSTEM, tag="scientific_search:system")
     except Exception as e:  # noqa: BLE001
         return None, "", f"egress rejected: {type(e).__name__}"
     body = {"model": LLM_MODEL,
@@ -603,12 +579,12 @@ def step_search(args):
                 cnt["未判定(限流)"] += 1
                 continue
             if not v:
-                cnt["NO_非生命科学"] += 1
+                cnt["NO_non_scientific"] += 1
                 continue
             cnt["YES"] += 1
             w.writerow({"discipline": disc, "name": short, "url": url,
                         "description": desc[:300], "stars": stars,
-                        "reason": why, "source": "bio_search"})
+                        "reason": why, "source": "scientific_search"})
         new_f.flush()
         buf.clear()
 
@@ -624,7 +600,7 @@ def step_search(args):
             if len(buf) >= args.llm_workers:
                 flush_batch(lex)
             if n % 200 == 0:
-                print(f"    [{n}/{len(combos)}] YES={cnt['YES']} NO={cnt['NO_非生命科学']} "
+                print(f"    [{n}/{len(combos)}] YES={cnt['YES']} NO={cnt['NO_non_scientific']} "
                       f"跳过已有={cnt['skip_已有']} 未判定={cnt['未判定(限流)']}"
                       f" 待判={len(buf)}", flush=True)
         flush_batch(lex)   # Classify the final partial batch.
